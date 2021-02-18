@@ -1,11 +1,14 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from enum import Enum
 import pandas as pd
+from statistics import stdev
+
 
 class BaseAlgorithm(ABC):
     def __init__(self):
         self.states = Enum('states', 'learning normal anomaly')
 
-        self._samples = pd.DataFrame(columns = ['timestamp', 'value'])
+        self._samples = pd.DataFrame(columns=['timestamp', 'value'])
 
     def get_stdev_tolerance(self):
         if len(self._samples) < 2:
