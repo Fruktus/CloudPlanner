@@ -5,7 +5,6 @@ from cloudplanner.anomaly_detection.algorithms.base_algorithm import BaseAlgorit
 
 
 class MedianAlgorithm(BaseAlgorithm):
-<<<<<<< HEAD
     def __init__(self, store_last_n=7, tolerance_multiplier=2):
         super().__init__()
 
@@ -33,6 +32,4 @@ class MedianAlgorithm(BaseAlgorithm):
             self._current_state = self.states.normal
         else:
             self._current_state = self.states.anomaly
-=======
-    pass
->>>>>>> master
+            self._anomalies_overutil
