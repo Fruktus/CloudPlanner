@@ -19,6 +19,10 @@ class MedianAlgorithm(BaseAlgorithm):
         self._last_n_samples.append([timestamp, value])
 
         # recalculate normal state
+        if len(self._last_n_samples['value']) == 0:
+            self._current_state = self.states.learning
+            return
+
         self._normal_state = median(self._last_n_samples['value'])
 
         # recalculate current state
