@@ -13,7 +13,7 @@ class MedianAlgorithm(BaseAlgorithm):
         pass
 
     def update(self, timestamp, value):
-        self._samples.append([timestamp, value])
+        self._samples.append({'timestamp': timestamp, 'value': value})
 
         # recalculate normal state
         if len(self._samples['value']) < 2:
