@@ -19,7 +19,7 @@ class MedianAlgorithm(BaseAlgorithm):
         self._last_n_samples.append([timestamp, value])
 
         # recalculate normal state
-        if len(self._last_n_samples['value']) == 0:
+        if len(self._last_n_samples['value']) < 2:
             self._current_state = self.states.learning
             return
 
@@ -29,11 +29,14 @@ class MedianAlgorithm(BaseAlgorithm):
         self._current_state = self.states.normal if value <= self._normal_state + self._normal_state * self._tolerance\
             else self.states.anomaly
 
-        tolerance = self._tolerance_multiplier * stdev(self._last_n_samples['values'])
+        tolerance = self._tolerance_multiplier * stdev(self._last_n_samples['value'])
         # TODO possibly calculate stdev over full history
 
-        if value < self._normal_state + tolerance:
+        if value < self._normal_state - tolerance:
+            self._current_state = self.states.underutil_anomaly
+            self._anomalies_underutil.append([timestamp, value])
+        elif value < self._normal_state + tolerance:
             self._current_state = self.states.normal
         else:
-            self._current_state = self.states.anomaly
-            self._anomalies_overutil
+            self._current_state = self.states.overutil_anomaly
+            self._anomalies_overutil.append([timestamp, value])
