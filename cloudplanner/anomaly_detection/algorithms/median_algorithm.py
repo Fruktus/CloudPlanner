@@ -11,6 +11,9 @@ class MedianAlgorithm(BaseAlgorithm):
         self._store_last_n = store_last_n
         self._last_n_samples = pd.DataFrame(columns=['timestamp', 'value'])
 
+    def get_confidence(self):
+        pass
+
     def update(self, timestamp, value):
         self._samples.append([timestamp, value])
 
