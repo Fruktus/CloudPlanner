@@ -9,7 +9,6 @@ class MedianAlgorithm(BaseAlgorithm):
         super().__init__()
 
         self._store_last_n = store_last_n
-        self._last_n_samples = pd.DataFrame(columns=['timestamp', 'value'])
 
     def get_confidence(self):
         pass
@@ -22,11 +21,11 @@ class MedianAlgorithm(BaseAlgorithm):
         self._last_n_samples.append([timestamp, value])
 
         # recalculate normal state
-        if len(self._last_n_samples['value']) < 2:
+        if len(self._samples['value']) < 2:
             self._current_state = self.states.learning
             return
 
-        self._normal_state = median(self._last_n_samples['value'])
+        self._normal_state = median(self._samples.tail(self._store_last_n)['value'])
 
         # recalculate current state
         self._current_state = self.states.normal if value <= self._normal_state + self._normal_state * self._tolerance\
