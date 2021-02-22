@@ -7,13 +7,14 @@ class MedianAlgorithm(BaseAlgorithm):
     def __init__(self, store_last_n=7, tolerance_multiplier=2):
         super().__init__()
 
+        self._tolerance_multiplier = tolerance_multiplier
         self._use_last_n = store_last_n
 
     def get_confidence(self):
         pass
 
     def update(self, timestamp, value):
-        self._samples.append({'timestamp': timestamp, 'value': value})
+        self._samples = self._samples.append({'timestamp': timestamp, 'value': value}, ignore_index=True)
 
         # recalculate normal state
         if len(self._samples['value']) < 2:
@@ -21,10 +22,6 @@ class MedianAlgorithm(BaseAlgorithm):
             return
 
         self._normal_state = median(self._samples.tail(self._use_last_n)['value'])
-
-        # recalculate current state
-        self._current_state = self.states.normal if value <= self._normal_state + self._normal_state * self._tolerance\
-            else self.states.anomaly
 
         tolerance = self._tolerance_multiplier * stdev(self._samples.tail(self._use_last_n)['value'])
         # TODO possibly calculate stdev over full history
