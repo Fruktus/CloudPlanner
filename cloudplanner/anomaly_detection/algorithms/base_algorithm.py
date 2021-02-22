@@ -6,7 +6,7 @@ from statistics import stdev
 
 class BaseAlgorithm(ABC):
     def __init__(self):
-        self.states = Enum('states', 'learning normal anomaly')
+        self.states = Enum('states', 'learning normal overutil_anomaly underutil_anomaly')
 
         self._samples = pd.DataFrame(columns=['timestamp', 'value'])
         self._anomalies_overutil = pd.DataFrame(columns=['timestamp', 'value'])
@@ -27,6 +27,13 @@ class BaseAlgorithm(ABC):
 
     def get_current_state(self) -> Enum:
         return self._current_state
+
+    def get_history(self):
+        return self._samples
+
+    @abstractmethod
+    def get_confidence(self):
+        pass
 
     @abstractmethod
     def update(self, timestamp, value) -> None:
