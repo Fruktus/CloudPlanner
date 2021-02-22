@@ -1,4 +1,3 @@
-import pandas as pd
 from statistics import median, stdev
 
 from cloudplanner.anomaly_detection.algorithms.base_algorithm import BaseAlgorithm
