@@ -7,10 +7,10 @@ class LSTM2Layer(BaseNetworkModel):
     def __init__(self, input_shape):
         self.history = None
 
-        model = keras.Sequential()
-        model.add(keras.layers.InputLayer(input_shape=input_shape))
+        self.model = keras.Sequential()
+        self.model.add(keras.layers.InputLayer(input_shape=input_shape))
 
-        model.add(
+        self.model.add(
             keras.layers.Bidirectional(
                 keras.layers.LSTM(
                     units=128,
@@ -19,9 +19,9 @@ class LSTM2Layer(BaseNetworkModel):
             )
         )
 
-        model.add(keras.layers.Dropout(rate=0.2))
+        self.model.add(keras.layers.Dropout(rate=0.2))
 
-        model.add(
+        self.model.add(
             keras.layers.Bidirectional(
                 keras.layers.LSTM(
                     units=128
@@ -29,9 +29,9 @@ class LSTM2Layer(BaseNetworkModel):
             )
         )
 
-        model.add(keras.layers.Dropout(rate=0.2))
-        model.add(keras.layers.Dense(units=1))
-        model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(learning_rate=0.01))
+        self.model.add(keras.layers.Dropout(rate=0.2))
+        self.model.add(keras.layers.Dense(units=1))
+        self.model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(learning_rate=0.01))
 
     def fit_model(self, x_train, y_train, epochs=15):
         self.history = self.model.fit(
