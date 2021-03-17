@@ -38,3 +38,7 @@ class BaseAlgorithm(ABC):
     @abstractmethod
     def update(self, timestamp, value) -> None:
         pass
+
+    @abstractmethod
+    def __str__(self):
+        pass

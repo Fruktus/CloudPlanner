@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="cloudplanner",
-    version="0.0.11",
+    version="0.0.12",
     author="Fruktus",
     author_email="fruktusek@gmail.com",
     description="Cloud resource usage planner",
@@ -19,4 +19,11 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    install_requires=[
+        'keras',
+        'pandas',
+        'plotly.express',
+        'sklearn',
+        'numpy'
+    ]
 )
