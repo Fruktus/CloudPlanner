@@ -59,7 +59,8 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
 
     network.fit_model(x_train, y_train)
 
-    y_pred = sc.inverse_transform(network.predict(predict_df))
+    reshaped_df = np.array(predict_df).reshape((predict_df.shape[0], 1, predict_df.shape[1]))
+    y_pred = sc.inverse_transform(network.predict(reshaped_df))
 
     fig = go.Figure()  # changed from FigureWidget
     fig.add_scatter(x=dataframe['timestamp'][:-2],
