@@ -33,12 +33,13 @@ class LSTM2Layer(BaseNetworkModel):
         self.model.add(keras.layers.Dense(units=1))
         self.model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(learning_rate=0.01))
 
-    def fit_model(self, x_train, y_train, epochs=15):
+    def fit_model(self, x_train, y_train, verbose, epochs=15):
         self.history = self.model.fit(
             x_train, y_train,
             epochs=epochs,
             batch_size=32,
             validation_split=0.1,
             shuffle=False,
+            verbose=verbose,
             callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', patience=6)]
         )

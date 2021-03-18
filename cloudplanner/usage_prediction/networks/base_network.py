@@ -9,7 +9,7 @@ class BaseNetworkModel(ABC):
         print(self.model.summary())
 
     @abstractmethod
-    def fit_model(self, x_train, y_train):
+    def fit_model(self, x_train, y_train, verbose=True):
         pass
 
     def predict(self, data):

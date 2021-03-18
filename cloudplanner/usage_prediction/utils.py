@@ -7,6 +7,8 @@ import plotly.graph_objects as go
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import RobustScaler
 
+pd.options.mode.chained_assignment = None
+
 
 def filter_dataframe(dataframe, filter, metric='cpu.usage.average'):
     filtered_df = dataframe.copy()
@@ -57,7 +59,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
     x_train, y_train = create_dataset(train, train[metric], time_steps)
     x_test, y_test = create_dataset(test, list(test[metric]), time_steps)
 
-    network.fit_model(x_train, y_train)
+    network.fit_model(x_train, y_train, verbose=False)
 
     reshaped_df = predict_df.copy()
     reshaped_df[metric] = sc.transform(reshaped_df[[metric]])
@@ -67,7 +69,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
 
     fig = go.Figure()  # changed from FigureWidget
     fig.add_scatter(x=dataframe['timestamp'][:-2],
-                    y=predict_df[metric][:-2],
+                    y=dataframe[metric][:-2],
                     name="Actual resource consumption",
                     mode='lines',
                     line=dict(color='black'))
