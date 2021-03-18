@@ -59,7 +59,10 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
 
     network.fit_model(x_train, y_train)
 
-    reshaped_df = np.array(predict_df).reshape((predict_df.shape[0], 1, predict_df.shape[1]))
+    reshaped_df = predict_df.copy()
+    reshaped_df[metric] = sc.transform(reshaped_df[[metric]])
+    reshaped_df = np.array(reshaped_df).reshape((reshaped_df.shape[0], 1, reshaped_df.shape[1]))
+
     y_pred = sc.inverse_transform(network.predict(reshaped_df))
 
     fig = go.Figure()  # changed from FigureWidget
@@ -75,7 +78,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
 
     if show_plot:
         fig.show()
-    return {'timestamp': predict_df['timestamp'][:-2], 'true': predict_df[metric][:-2],
+    return {'timestamp': dataframe['timestamp'][:-2], 'true': predict_df[metric][:-2],
             'prediction': y_pred, 'plot': fig}
 
 
