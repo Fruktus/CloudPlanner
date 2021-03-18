@@ -12,5 +12,5 @@ class BaseNetworkModel(ABC):
     def fit_model(self, x_train, y_train):
         pass
 
-    def model_predict(self, data):
+    def predict(self, data):
         return self.model.predict(data)
