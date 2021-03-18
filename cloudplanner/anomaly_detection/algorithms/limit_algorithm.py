@@ -2,11 +2,11 @@ from cloudplanner.anomaly_detection.algorithms.base_algorithm import BaseAlgorit
 
 
 class LimitAlgorithm(BaseAlgorithm):
-    def __init__(self, upper_limit=20, lower_limit=50):
+    def __init__(self, upper_treshold=20, lower_treshold=50):
         super().__init__()
 
-        self._upper_limit = upper_limit
-        self._lower_limit = lower_limit
+        self._upper_treshold = upper_treshold
+        self._lower_treshold = lower_treshold
 
     def get_confidence(self):
         pass
@@ -14,11 +14,11 @@ class LimitAlgorithm(BaseAlgorithm):
     def update(self, timestamp, value):
         self._samples = self._samples.append({'timestamp': timestamp, 'value': value}, ignore_index=True)
 
-        if value < self._lower_limit:
+        if value < self._lower_treshold:
             self._current_state = self.states.underutil_anomaly
             self._anomalies_underutil = self._anomalies_underutil.append({'timestamp': timestamp, 'value': value},
                                                                          ignore_index=True)
-        elif value < self._upper_limit:
+        elif value < self._upper_treshold:
             self._current_state = self.states.normal
         else:
             self._current_state = self.states.overutil_anomaly

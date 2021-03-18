@@ -26,11 +26,14 @@ class MedianAlgorithm(BaseAlgorithm):
         tolerance = self._tolerance_multiplier * stdev(self._samples.tail(self._use_last_n)['value'])
         # TODO possibly calculate stdev over full history
 
-        if value < self._normal_state - tolerance:
+        self._upper_treshold = self._normal_state + tolerance
+        self._lower_treshold = self._normal_state - tolerance
+
+        if value < self._lower_treshold:
             self._current_state = self.states.underutil_anomaly
             self._anomalies_underutil = self._anomalies_underutil.append({'timestamp': timestamp, 'value': value},
                                                                          ignore_index=True)
-        elif value < self._normal_state + tolerance:
+        elif value < self._upper_treshold:
             self._current_state = self.states.normal
         else:
             self._current_state = self.states.overutil_anomaly

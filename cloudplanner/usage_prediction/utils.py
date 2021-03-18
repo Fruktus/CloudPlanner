@@ -45,19 +45,18 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
     predict_df['month'] = dataframe.timestamp.dt.month
     predict_df[metric] = dataframe[metric]
 
+    sc = RobustScaler()
+    sc = sc.fit(predict_df[[metric]])  # TODO fit before or after filter?
+
     if adfilter:
         predict_df = filter_dataframe(predict_df, adfilter, metric)
     train, test = split_dataframe(predict_df)
 
-    time_steps = 1
-
-    sc = RobustScaler()
-    sc = sc.fit(train[[metric]])
     train[metric] = sc.transform(train[[metric]])
     test[metric] = sc.transform(test[[metric]])
 
-    x_train, y_train = create_dataset(train, train[metric], time_steps)
-    x_test, y_test = create_dataset(test, list(test[metric]), time_steps)
+    x_train, y_train = create_dataset(train, train[metric], time_steps=1)
+    x_test, y_test = create_dataset(test, list(test[metric]), time_steps=1)
 
     network.fit_model(x_train, y_train, verbose=False)
 
@@ -68,19 +67,19 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
     y_pred = sc.inverse_transform(network.predict(reshaped_df))
 
     fig = go.Figure()  # changed from FigureWidget
-    fig.add_scatter(x=dataframe['timestamp'][:-2],
-                    y=dataframe[metric][:-2],
+    fig.add_scatter(x=dataframe['timestamp'],
+                    y=dataframe[metric],
                     name="Actual resource consumption",
                     mode='lines',
                     line=dict(color='black'))
-    fig.add_scatter(x=dataframe['timestamp'][:-2],
+    fig.add_scatter(x=dataframe['timestamp'],
                     y=y_pred.flatten(), name="Predicted resource consumption",
                     mode='lines',
                     line=dict(color='black', dash='dot'))
 
     if show_plot:
         fig.show()
-    return {'timestamp': dataframe['timestamp'][:-2], 'true': dataframe[metric][:-2],
+    return {'timestamp': dataframe['timestamp'], 'true': dataframe[metric],
             'prediction': y_pred, 'plot': fig}
 
 
@@ -136,3 +135,49 @@ def analyze_experiment(ex_result: dict):
             'lowest_underestimate': lowest_underestimate,
             'correlation': correlation,
             'RMSE': sqrt(mean_squared_error(ex_result['true'], ex_result['prediction'].flatten()))}
+
+
+def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage.average', feedback_len=10):
+    predict_df = pd.DataFrame()
+    # predict_df['hour'] = df.timestamp.dt.hour
+    predict_df['day_of_month'] = dataframe.timestamp.dt.day
+    predict_df['day_of_week'] = dataframe.timestamp.dt.dayofweek
+    predict_df['month'] = dataframe.timestamp.dt.month
+    predict_df[metric] = dataframe[metric]
+
+    sc = RobustScaler()
+    sc = sc.fit(predict_df[[metric]])  # TODO fit before or after filter?
+
+    if adfilter:
+        predict_df = filter_dataframe(predict_df, adfilter, metric)
+    train, test = split_dataframe(predict_df)
+
+    train[metric] = sc.transform(train[[metric]])
+    test[metric] = sc.transform(test[[metric]])
+
+    x_train, y_train = create_dataset(train, train[metric], time_steps=1)
+    x_test, y_test = create_dataset(test, list(test[metric]), time_steps=1)
+
+    network.fit_model(x_train, y_train, verbose=False)
+
+    data_pred = np.concatenate((train, test))
+    data_pred = data_pred.reshape((data_pred.shape[0], 1, data_pred.shape[1]))
+
+    for index in range(len(data_pred)):
+        if index > feedback_len:
+            data_pred[index][0][3] = network.predict(np.array([data_pred[index-1]]))
+        else:
+            network.predict(np.array([data_pred[index]]))  # needed for stateful networks
+
+    y_pred = sc.inverse_transform(data_pred[:, :, 3])
+    # data_pred contains unscaled raw predictions, need to scale them back
+
+    fig = go.Figure()  # changed from FigureWidget
+    fig.add_scatter(x=dataframe['timestamp'], y=predict_df['cpu.usage.average'],
+                    name="Actual resource consumption", mode='lines',
+                    line=dict(color='black'))
+    fig.add_scatter(x=dataframe['timestamp'], y=y_pred.flatten(),
+                    name="Predicted resource consumption", mode='lines',
+                    line=dict(color='black', dash='dot'))
+
+    fig.show()

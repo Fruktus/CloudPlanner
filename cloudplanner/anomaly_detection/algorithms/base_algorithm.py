@@ -14,6 +14,8 @@ class BaseAlgorithm(ABC):
 
         self._normal_state = 0
         self._current_state = self.states.learning
+        self._upper_treshold = 0
+        self._lower_treshold = 0
 
     def get_stdev(self) -> float:
         if len(self._samples) < 2:
@@ -30,6 +32,12 @@ class BaseAlgorithm(ABC):
 
     def get_history(self):
         return self._samples
+
+    def get_upper_treshold(self):
+        return self._upper_treshold
+
+    def get_lower_treshold(self):
+        return self._lower_treshold
 
     @abstractmethod
     def get_confidence(self):
