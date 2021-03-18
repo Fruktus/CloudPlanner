@@ -61,7 +61,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
 
     network.fit_model(x_train, y_train, verbose=False)
 
-    reshaped_df = predict_df.copy()
+    reshaped_df = dataframe.copy()
     reshaped_df[metric] = sc.transform(reshaped_df[[metric]])
     reshaped_df = np.array(reshaped_df).reshape((reshaped_df.shape[0], 1, reshaped_df.shape[1]))
 
@@ -80,7 +80,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
 
     if show_plot:
         fig.show()
-    return {'timestamp': dataframe['timestamp'][:-2], 'true': predict_df[metric][:-2],
+    return {'timestamp': dataframe['timestamp'][:-2], 'true': dataframe[metric][:-2],
             'prediction': y_pred, 'plot': fig}
 
 
