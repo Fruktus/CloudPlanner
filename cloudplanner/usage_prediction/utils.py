@@ -72,6 +72,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                     y=dataframe[metric],
                     name="Actual resource consumption",
                     mode='lines',
+                    line_width=1,
                     line=dict(color='black'))
     fig.add_scatter(x=dataframe['timestamp'],
                     y=y_pred.flatten(), name="Predicted resource consumption",
@@ -84,13 +85,17 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                                  mode='lines',
                                  fill=None,
                                  name='Anomaly Detection Treshold',
-                                 line_color='black'))
+                                 line_color='black',
+                                 line_width=0.5,
+                                 fillcolor='rgba(0, 0, 0, 0.1)'))
         fig.add_trace(go.Scatter(x=dataframe['timestamp'],
                                  y=adfilter.get_tresholds()['lower_treshold'],
                                  mode='lines',
                                  fill='tonexty',
                                  name='Anomaly Detection Treshold',
-                                 line_color='black'))
+                                 line_color='black',
+                                 line_width=0.5,
+                                 fillcolor='rgba(0, 0, 0, 0.1)'))
 
     if show_plot:
         fig.show()
