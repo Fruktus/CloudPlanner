@@ -28,6 +28,11 @@ class MedianAlgorithm(BaseAlgorithm):
 
         self._upper_treshold = self._normal_state + tolerance
         self._lower_treshold = self._normal_state - tolerance
+        self._anomalies_treshold_history = self._anomalies_treshold_history.append(
+            {'timestamp': timestamp,
+             'upper_treshold': self._upper_treshold,
+             'lower_treshold': self._lower_treshold},
+            ignore_index=True)
 
         if value < self._lower_treshold:
             self._current_state = self.states.underutil_anomaly

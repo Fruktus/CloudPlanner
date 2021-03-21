@@ -37,7 +37,9 @@ def create_dataset(x, y, time_steps=1):
     return np.array(xs), np.array(ys)
 
 
-def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average', show_plot=False):
+def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average', show_plot=False,
+                   show_tresholds=False):
+
     base_df = pd.DataFrame()
     # predict_df['hour'] = df.timestamp.dt.hour
     base_df['day_of_month'] = dataframe.timestamp.dt.day
@@ -75,6 +77,20 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                     y=y_pred.flatten(), name="Predicted resource consumption",
                     mode='lines',
                     line=dict(color='black', dash='dot'))
+
+    if adfilter and show_tresholds:
+        fig.add_trace(go.Scatter(x=adfilter.get_tresholds()['timestamp'],
+                                 y=adfilter.get_tresholds()['upper_treshold'],
+                                 mode='lines',
+                                 fill=None,
+                                 name='Anomaly Detection Treshold',
+                                 line_color='black'))
+        fig.add_trace(go.Scatter(x=adfilter.get_tresholds()['timestamp'],
+                                 y=adfilter.get_tresholds()['lower_treshold'],
+                                 mode='lines',
+                                 fill='tonexty',
+                                 name='Anomaly Detection Treshold',
+                                 line_color='black'))
 
     if show_plot:
         fig.show()

@@ -13,6 +13,11 @@ class LimitAlgorithm(BaseAlgorithm):
 
     def update(self, timestamp, value):
         self._samples = self._samples.append({'timestamp': timestamp, 'value': value}, ignore_index=True)
+        self._anomalies_treshold_history = self._anomalies_treshold_history.append(
+            {'timestamp': timestamp,
+             'upper_treshold': self._upper_treshold,
+             'lower_treshold': self._lower_treshold},
+            ignore_index=True)
 
         if value < self._lower_treshold:
             self._current_state = self.states.underutil_anomaly

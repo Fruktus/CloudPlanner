@@ -11,6 +11,7 @@ class BaseAlgorithm(ABC):
         self._samples = pd.DataFrame(columns=['timestamp', 'value'])
         self._anomalies_overutil = pd.DataFrame(columns=['timestamp', 'value'])
         self._anomalies_underutil = pd.DataFrame(columns=['timestamp', 'value'])
+        self._anomalies_treshold_history = pd.DataFrame(columns=['timestamp', 'upper_treshold', 'lower_treshold'])
 
         self._normal_state = 0
         self._current_state = self.states.learning
@@ -33,11 +34,8 @@ class BaseAlgorithm(ABC):
     def get_history(self):
         return self._samples
 
-    def get_upper_treshold(self):
-        return self._upper_treshold
-
-    def get_lower_treshold(self):
-        return self._lower_treshold
+    def get_tresholds(self):
+        return self._anomalies_treshold_history
 
     @abstractmethod
     def get_confidence(self):
