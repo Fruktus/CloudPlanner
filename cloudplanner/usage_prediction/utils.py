@@ -38,18 +38,17 @@ def create_dataset(x, y, time_steps=1):
 
 
 def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average', show_plot=False):
-    predict_df = pd.DataFrame()
+    base_df = pd.DataFrame()
     # predict_df['hour'] = df.timestamp.dt.hour
-    predict_df['day_of_month'] = dataframe.timestamp.dt.day
-    predict_df['day_of_week'] = dataframe.timestamp.dt.dayofweek
-    predict_df['month'] = dataframe.timestamp.dt.month
-    predict_df[metric] = dataframe[metric]
+    base_df['day_of_month'] = dataframe.timestamp.dt.day
+    base_df['day_of_week'] = dataframe.timestamp.dt.dayofweek
+    base_df['month'] = dataframe.timestamp.dt.month
+    base_df[metric] = dataframe[metric]
 
     sc = RobustScaler()
-    sc = sc.fit(predict_df[[metric]])  # TODO fit before or after filter?
+    sc = sc.fit(base_df[[metric]])  # TODO fit before or after filter?
 
-    if adfilter:
-        predict_df = filter_dataframe(predict_df, adfilter, metric)
+    predict_df = filter_dataframe(base_df, adfilter, metric) if adfilter else base_df
     train, test = split_dataframe(predict_df)
 
     train[metric] = sc.transform(train[[metric]])
@@ -60,7 +59,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
 
     network.fit_model(x_train, y_train, verbose=False)
 
-    reshaped_df = dataframe.copy()
+    reshaped_df = base_df.copy()
     reshaped_df[metric] = sc.transform(reshaped_df[[metric]])
     reshaped_df = np.array(reshaped_df).reshape((reshaped_df.shape[0], 1, reshaped_df.shape[1]))
 
