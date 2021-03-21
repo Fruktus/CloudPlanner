@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="cloudplanner",
-    version="0.0.26",
+    version="0.0.27",
     author="Fruktus",
     author_email="fruktusek@gmail.com",
     description="Cloud resource usage planner",

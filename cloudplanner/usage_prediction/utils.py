@@ -13,7 +13,7 @@ pd.options.mode.chained_assignment = None
 def filter_dataframe(dataframe, filter, metric='cpu.usage.average'):
     filtered_df = dataframe.copy()
     for index, row in filtered_df.iterrows():
-        filter.update(row['month'] + row['day_of_month'], row[metric])
+        filter.update(row['timestamp'], row[metric])
         if filter.get_current_state() == filter.states.overutil_anomaly:
             filtered_df.drop(index, inplace=True)
 
@@ -47,11 +47,19 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
     base_df['month'] = dataframe.timestamp.dt.month
     base_df[metric] = dataframe[metric]
 
-    sc = RobustScaler()
-    sc = sc.fit(base_df[[metric]])  # TODO fit before or after filter?
+    filtered_df = filter_dataframe(dataframe, adfilter, metric) if adfilter else dataframe
 
-    predict_df = filter_dataframe(base_df, adfilter, metric) if adfilter else base_df
-    train, test = split_dataframe(predict_df)
+    base_filtered_df = pd.DataFrame()
+    # predict_df['hour'] = df.timestamp.dt.hour
+    base_filtered_df['day_of_month'] = filtered_df.timestamp.dt.day
+    base_filtered_df['day_of_week'] = filtered_df.timestamp.dt.dayofweek
+    base_filtered_df['month'] = filtered_df.timestamp.dt.month
+    base_filtered_df[metric] = filtered_df[metric]
+
+    sc = RobustScaler()
+    sc = sc.fit(base_filtered_df[[metric]])  # TODO fit before or after filter?
+
+    train, test = split_dataframe(base_filtered_df)
 
     train[metric] = sc.transform(train[[metric]])
     test[metric] = sc.transform(test[[metric]])
@@ -87,6 +95,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                                  name='Anomaly Detection Treshold',
                                  line_color='black',
                                  line_width=0.5,
+                                 showlegend=False,
                                  fillcolor='rgba(0, 0, 0, 0.1)'))
         fig.add_trace(go.Scatter(x=dataframe['timestamp'],
                                  y=adfilter.get_tresholds()['lower_treshold'],
@@ -158,18 +167,20 @@ def analyze_experiment(ex_result: dict):
 
 
 def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage.average', feedback_len=10):
-    predict_df = pd.DataFrame()
+    filtered_df = filter_dataframe(dataframe, adfilter, metric) if adfilter else dataframe
+
+    base_filtered_df = pd.DataFrame()
     # predict_df['hour'] = df.timestamp.dt.hour
-    predict_df['day_of_month'] = dataframe.timestamp.dt.day
-    predict_df['day_of_week'] = dataframe.timestamp.dt.dayofweek
-    predict_df['month'] = dataframe.timestamp.dt.month
-    predict_df[metric] = dataframe[metric]
+    base_filtered_df['day_of_month'] = filtered_df.timestamp.dt.day
+    base_filtered_df['day_of_week'] = filtered_df.timestamp.dt.dayofweek
+    base_filtered_df['month'] = filtered_df.timestamp.dt.month
+    base_filtered_df[metric] = filtered_df[metric]
 
     sc = RobustScaler()
-    sc = sc.fit(predict_df[[metric]])  # TODO fit before or after filter?
+    sc = sc.fit(base_filtered_df[[metric]])  # TODO fit before or after filter?
 
     if adfilter:
-        predict_df = filter_dataframe(predict_df, adfilter, metric)
+        predict_df = filter_dataframe(base_filtered_df, adfilter, metric)
     train, test = split_dataframe(predict_df)
 
     train[metric] = sc.transform(train[[metric]])
