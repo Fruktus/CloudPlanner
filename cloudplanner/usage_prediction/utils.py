@@ -202,7 +202,7 @@ def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage
     # data_pred contains unscaled raw predictions, need to scale them back
 
     fig = go.Figure()  # changed from FigureWidget
-    fig.add_scatter(x=dataframe['timestamp'], y=predict_df['cpu.usage.average'],
+    fig.add_scatter(x=dataframe['timestamp'], y=dataframe['cpu.usage.average'],
                     name="Actual resource consumption", mode='lines',
                     line=dict(color='black'))
     fig.add_scatter(x=dataframe['timestamp'], y=y_pred.flatten(),
