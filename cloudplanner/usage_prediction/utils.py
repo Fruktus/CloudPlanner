@@ -179,9 +179,7 @@ def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage
     sc = RobustScaler()
     sc = sc.fit(base_filtered_df[[metric]])  # TODO fit before or after filter?
 
-    if adfilter:
-        predict_df = filter_dataframe(base_filtered_df, adfilter, metric)
-    train, test = split_dataframe(predict_df)
+    train, test = split_dataframe(base_filtered_df)
 
     train[metric] = sc.transform(train[[metric]])
     test[metric] = sc.transform(test[[metric]])
