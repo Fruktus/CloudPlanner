@@ -1,3 +1,4 @@
+from copy import deepcopy
 from math import sqrt
 from sys import maxsize
 
@@ -38,7 +39,7 @@ def create_dataset(x, y, time_steps=1):
 
 
 def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average', show_plot=False,
-                   show_tresholds=False):
+                   show_tresholds=False, mark_anomalies=False):
 
     base_df = pd.DataFrame()
     # predict_df['hour'] = df.timestamp.dt.hour
@@ -105,6 +106,12 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                                  line_color='black',
                                  line_width=0.5,
                                  fillcolor='rgba(0, 0, 0, 0.1)'))
+    if mark_anomalies:
+        fig.add_scatter(x=adfilter.get_anomaly_overutil()['timestamp'],
+                        y=adfilter.get_anomaly_overutil()['value'], name="Anomaly",
+                        mode='markers',
+                        marker={'color': 'black'},
+                        marker_symbol='square-open-dot')
 
     if show_plot:
         fig.show()
@@ -112,15 +119,15 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
             'prediction': y_pred, 'plot': fig}
 
 
-def run_batch_experiment(dataframes, filters):
+def run_batch_experiment(dataframes, network, filters):
     for df in dataframes:
-        result = run_experiment(df)
+        result = run_experiment(df, deepcopy(network))
         result['plot'].update_layout(title='filter = None')
         result['plot'].show()
         print('experiment results: ', analyze_experiment(result))
 
         for adfilter in filters:
-            result = run_experiment(df, filter=adfilter)
+            result = run_experiment(df, deepcopy(network), adfilter=adfilter)
             result['plot'].update_layout(title='filter = ' + str(adfilter))
             result['plot'].show()
             print('experiment results: ', analyze_experiment(result))

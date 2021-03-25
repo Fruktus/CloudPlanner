@@ -28,6 +28,12 @@ class BaseAlgorithm(ABC):
             return len(self._anomalies_overutil)
         return len(self._anomalies_overutil) + len(self._anomalies_underutil)
 
+    def get_anomaly_overutil(self):
+        return self._anomalies_overutil
+
+    def get_anomaly_underutil(self):
+        return self._anomalies_underutil
+
     def get_current_state(self) -> Enum:
         return self._current_state
 
