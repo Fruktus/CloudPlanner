@@ -219,5 +219,13 @@ def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage
     fig.add_scatter(x=dataframe['timestamp'], y=y_pred.flatten(),
                     name="Predicted resource consumption", mode='lines',
                     line=dict(color='black', dash='dot'))
-
+    
+    title = str(adfilter) if adfilter else 'None'
+    fig.update_layout(
+        title='Filter = ' + title,
+        xaxis_title='Date',
+        yaxis_title=metric,
+        yaxis_range=[0, 100]
+    )
+    
     fig.show()
