@@ -4,11 +4,12 @@ from cloudplanner.anomaly_detection.algorithms.base_algorithm import BaseAlgorit
 
 
 class MedianAlgorithm(BaseAlgorithm):
-    def __init__(self, store_last_n=7, tolerance_multiplier=2):
+    def __init__(self, store_last_n=7, tolerance_multiplier=2, min_tolerance=1):
         super().__init__()
 
         self._tolerance_multiplier = tolerance_multiplier
         self._use_last_n = store_last_n
+        self.min_tolerance = min_tolerance
 
     def get_confidence(self):
         pass
@@ -24,6 +25,8 @@ class MedianAlgorithm(BaseAlgorithm):
         self._normal_state = median(self._samples.tail(self._use_last_n)['value'])
 
         tolerance = self._tolerance_multiplier * stdev(self._samples.tail(self._use_last_n)['value'])
+        tolerance = tolerance if tolerance > self.min_tolerance else self.min_tolerance
+
         # TODO possibly calculate stdev over full history
 
         self._upper_treshold = self._normal_state + tolerance
@@ -38,7 +41,7 @@ class MedianAlgorithm(BaseAlgorithm):
             self._current_state = self.states.underutil_anomaly
             self._anomalies_underutil = self._anomalies_underutil.append({'timestamp': timestamp, 'value': value},
                                                                          ignore_index=True)
-        elif value < self._upper_treshold:
+        elif value <= self._upper_treshold:
             self._current_state = self.states.normal
         else:
             self._current_state = self.states.overutil_anomaly

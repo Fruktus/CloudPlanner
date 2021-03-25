@@ -29,3 +29,6 @@ class LimitAlgorithm(BaseAlgorithm):
             self._current_state = self.states.overutil_anomaly
             self._anomalies_overutil = self._anomalies_overutil.append({'timestamp': timestamp, 'value': value},
                                                                        ignore_index=True)
+
+    def __str__(self):
+        return "LimitAlgorithm"
