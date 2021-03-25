@@ -106,7 +106,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                                  line_color='black',
                                  line_width=0.5,
                                  fillcolor='rgba(0, 0, 0, 0.1)'))
-    if mark_anomalies:
+    if adfilter and mark_anomalies:
         fig.add_scatter(x=adfilter.get_anomaly_overutil()['timestamp'],
                         y=adfilter.get_anomaly_overutil()['value'], name="Anomaly",
                         mode='markers',
