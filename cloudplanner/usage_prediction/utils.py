@@ -113,23 +113,27 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                         marker={'color': 'black'},
                         marker_symbol='square-open-dot')
 
+    title = str(adfilter) if adfilter else 'None'
+    fig.update_layout(
+        title='Filter = ' + title,
+        xaxis_title='Date',
+        yaxis_title=metric,
+        yaxis_range=[0, 100]
+    )
+
     if show_plot:
         fig.show()
     return {'timestamp': dataframe['timestamp'], 'true': dataframe[metric],
             'prediction': y_pred, 'plot': fig}
 
 
-def run_batch_experiment(dataframes, network, filters):
+def run_batch_experiment(dataframes, network, filters, **kwargs):
     for df in dataframes:
-        result = run_experiment(df, deepcopy(network))
-        result['plot'].update_layout(title='filter = None')
-        result['plot'].show()
+        result = run_experiment(df, deepcopy(network), **kwargs)
         print('experiment results: ', analyze_experiment(result))
 
         for adfilter in filters:
-            result = run_experiment(df, deepcopy(network), adfilter=adfilter)
-            result['plot'].update_layout(title='filter = ' + str(adfilter))
-            result['plot'].show()
+            result = run_experiment(df, deepcopy(network), adfilter=adfilter, **kwargs)
             print('experiment results: ', analyze_experiment(result))
 
 
