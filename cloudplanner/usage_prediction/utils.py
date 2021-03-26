@@ -1,12 +1,15 @@
-from copy import deepcopy
 from math import sqrt
 from sys import maxsize
+from copy import deepcopy
+from collections import defaultdict
+from statistics import mean
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import RobustScaler
+from cloudplanner.usage_prediction.networks.lstm_2layer import LSTM2Layer
 
 pd.options.mode.chained_assignment = None
 
@@ -127,14 +130,34 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
             'prediction': y_pred, 'plot': fig}
 
 
-def run_batch_experiment(dataframes, network, filters, **kwargs):
+def run_batch_experiment(dataframes, filters, verbose=False, **kwargs):
+    results = []
     for df in dataframes:
-        result = run_experiment(df, deepcopy(network), **kwargs)
-        print('experiment results: ', analyze_experiment(result))
+        result = run_experiment(df, LSTM2Layer(input_shape=(1, 4)), **kwargs)
+        if verbose:
+            print('experiment results: ', analyze_experiment(result))
+        tmp_res = [{'filter': 'None', 'result': analyze_experiment(result)}]
 
         for adfilter in filters:
-            result = run_experiment(df, deepcopy(network), adfilter=adfilter, **kwargs)
-            print('experiment results: ', analyze_experiment(result))
+            result = run_experiment(df, LSTM2Layer(input_shape=(1, 4)), adfilter=deepcopy(adfilter), **kwargs)
+            if verbose:
+                print('experiment results: ', analyze_experiment(result))
+            tmp_res.append({'filter': str(adfilter), 'result': analyze_experiment(result)})
+        results.append(tmp_res)
+    return results
+
+
+def analyze_batch_result(batch_result, full=False):
+    filter_results = defaultdict(lambda: defaultdict(list))
+    for df_run in batch_result:
+        for filter_run in df_run:
+            for metric in filter_run['result'].keys():
+                filter_results[filter_run['filter']][metric].append(filter_run['result'][metric])
+    if not full:
+        for adfilter in filter_results.keys():
+            for metric in filter_results[adfilter].keys():
+                filter_results[adfilter][metric] = mean(filter_results[adfilter][metric])
+    return filter_results
 
 
 def analyze_experiment(ex_result: dict):
@@ -173,6 +196,8 @@ def analyze_experiment(ex_result: dict):
             'avg_underestimate_diff': underestimate_difference/total_underestimates,
             'highest_overestimate': highest_overestimate,
             'lowest_underestimate': lowest_underestimate,
+            'total_overestimates': total_overestimates,
+            'total_underestimates': total_underestimates,
             'correlation': correlation,
             'RMSE': sqrt(mean_squared_error(ex_result['true'], ex_result['prediction'].flatten()))}
 
@@ -219,7 +244,7 @@ def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage
     fig.add_scatter(x=dataframe['timestamp'], y=y_pred.flatten(),
                     name="Predicted resource consumption", mode='lines',
                     line=dict(color='black', dash='dot'))
-    
+
     title = str(adfilter) if adfilter else 'None'
     fig.update_layout(
         title='Filter = ' + title,
@@ -227,5 +252,5 @@ def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage
         yaxis_title=metric,
         yaxis_range=[0, 100]
     )
-    
+
     fig.show()
