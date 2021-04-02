@@ -1,17 +1,18 @@
-from statistics import median, stdev
+from statistics import stdev
+from pykalman import KalmanFilter
 
 from cloudplanner.anomaly_detection.algorithms.base_algorithm import BaseAlgorithm
 
 
-class MedianAlgorithm(BaseAlgorithm):
-    # Variation of Moving Average filter
+class KalmanAlgorithm(BaseAlgorithm):
 
-    def __init__(self, store_last_n=7, tolerance_multiplier=2, min_tolerance=1):
+    def __init__(self, window_length=7, tolerance_multiplier=1, min_tolerance=1):
         super().__init__()
 
+        self._window_length = window_length
         self._tolerance_multiplier = tolerance_multiplier
-        self._use_last_n = store_last_n
         self.min_tolerance = min_tolerance
+        self._kf = KalmanFilter(initial_state_mean=0, n_dim_obs=1)
 
     def get_confidence(self):
         pass
@@ -20,16 +21,15 @@ class MedianAlgorithm(BaseAlgorithm):
         self._samples = self._samples.append({'timestamp': timestamp, 'value': value}, ignore_index=True)
 
         # recalculate normal state
-        if len(self._samples['value']) < 2:
+        if len(self._samples['value']) < self._window_length:
             self._current_state = self.states.learning
             return
 
-        self._normal_state = median(self._samples.tail(self._use_last_n)['value'])
+        self._normal_state = self._kf.smooth(self._samples.tail(self._window_length)['value'])[0][-1][0]
+        # get the value of the prediction of last day
 
-        tolerance = self._tolerance_multiplier * stdev(self._samples.tail(self._use_last_n)['value'])
+        tolerance = self._tolerance_multiplier * stdev(self._samples.tail(self._window_length)['value'])
         tolerance = tolerance if tolerance > self.min_tolerance else self.min_tolerance
-
-        # TODO possibly calculate stdev over full history
 
         self._upper_treshold = self._normal_state + tolerance
         self._lower_treshold = self._normal_state - tolerance
@@ -51,4 +51,4 @@ class MedianAlgorithm(BaseAlgorithm):
                                                                        ignore_index=True)
 
     def __str__(self):
-        return "MedianAlgorithm"
+        return "KalmanAlgorithm"

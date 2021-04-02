@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="cloudplanner",
-    version="0.0.35",
+    version="0.0.36",
     author="Fruktus",
     author_email="fruktusek@gmail.com",
     description="Cloud resource usage planner",
@@ -23,6 +23,7 @@ setuptools.setup(
         'keras',
         'pandas',
         'sklearn',
-        'numpy'
+        'numpy',
+        'pykalman'
     ]
 )

@@ -92,7 +92,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                     line=dict(color='black', dash='dot'))
 
     if adfilter and show_tresholds:
-        fig.add_trace(go.Scatter(x=dataframe['timestamp'],
+        fig.add_trace(go.Scatter(x=adfilter.get_tresholds()['timestamp'],
                                  y=adfilter.get_tresholds()['upper_treshold'],
                                  mode='lines',
                                  fill=None,
@@ -101,7 +101,7 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
                                  line_width=0.5,
                                  showlegend=False,
                                  fillcolor='rgba(0, 0, 0, 0.1)'))
-        fig.add_trace(go.Scatter(x=dataframe['timestamp'],
+        fig.add_trace(go.Scatter(x=adfilter.get_tresholds()['timestamp'],
                                  y=adfilter.get_tresholds()['lower_treshold'],
                                  mode='lines',
                                  fill='tonexty',
