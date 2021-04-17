@@ -1,12 +1,11 @@
-from statistics import mean
 from collections import defaultdict
 
 from cloudplanner.anomaly_detection.algorithms.base_algorithm import BaseAlgorithm
 
 
-class HybdridAlgorithm(BaseAlgorithm):
+class WeightedHybdridAlgorithm(BaseAlgorithm):
 
-    def __init__(self, filters: [BaseAlgorithm], window_length=7, min_confidence=0.8):
+    def __init__(self, filters: [(BaseAlgorithm, float)], window_length=7, min_confidence=0.8):
         super().__init__()
 
         self._filters = filters
@@ -21,7 +20,7 @@ class HybdridAlgorithm(BaseAlgorithm):
         self._samples = self._samples.append({'timestamp': timestamp, 'value': value}, ignore_index=True)
 
         combined_states = []
-        for alg in self._filters:
+        for alg, confidence in self._filters:
             alg.update(timestamp, value)
             combined_states.append(alg.get_current_state())
 
@@ -29,7 +28,12 @@ class HybdridAlgorithm(BaseAlgorithm):
             self._current_state = self.states.learning
             return
 
-        state_confidence = mean([1 if i == self.states.overutil_anomaly else 0 for i in combined_states])
+        state_confidence = 0.0
+        for i in range(len(combined_states)):
+            tmp_state = 1 if combined_states[i] == self.states.overutil_anomaly else 0
+            state_confidence += tmp_state * self._filters[i][1]
+
+        state_confidence /= len(self._filters)
         self._update_recurrent(timestamp, state_confidence > self._min_confidence)
 
         if state_confidence >= self._min_confidence:
@@ -64,4 +68,4 @@ class HybdridAlgorithm(BaseAlgorithm):
                self._recurrency_data['day_of_month'][timestamp.day] > 2
 
     def __str__(self):
-        return "HybridAlgorithm"
+        return "WeightedHybridAlgorithm"
