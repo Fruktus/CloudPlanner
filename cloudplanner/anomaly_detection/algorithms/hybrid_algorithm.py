@@ -50,17 +50,17 @@ class HybridAlgorithm(BaseAlgorithm):
 
     def _update_recurrent(self, timestamp, is_anomaly: bool):
         if is_anomaly:
-            self._recurrency_data['day_of_week'][timestamp.day_of_week] += 1
+            self._recurrency_data['day_of_week'][timestamp.dayofweek] += 1
             self._recurrency_data['day_of_month'][timestamp.day] += 1
         else:
-            dow = self._recurrency_data['day_of_week'][timestamp.day_of_week]
-            self._recurrency_data['day_of_week'][timestamp.day_of_week] = dow - 1 if dow > 0 else 0
+            dow = self._recurrency_data['day_of_week'][timestamp.dayofweek]
+            self._recurrency_data['day_of_week'][timestamp.dayofweek] = dow - 1 if dow > 0 else 0
 
             dom = self._recurrency_data['day_of_month'][timestamp.day]
             self._recurrency_data['day_of_month'][timestamp.day] = dom - 1 if dom > 0 else 0
 
     def _is_recurrent(self, timestamp):
-        return self._recurrency_data['day_of_week'][timestamp.day_of_week] > 2 or \
+        return self._recurrency_data['day_of_week'][timestamp.dayofweek] > 2 or \
                self._recurrency_data['day_of_month'][timestamp.day] > 2
 
     def __str__(self):
