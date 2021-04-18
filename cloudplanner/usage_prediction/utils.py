@@ -133,17 +133,20 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
 def run_batch_experiment(dataframes, filters, verbose=False, **kwargs):
     results = []
     for df in dataframes:
-        result = run_experiment(df, LSTM2Layer(input_shape=(1, 4)), **kwargs)
-        if verbose:
-            print('experiment results: ', analyze_experiment(result))
-        tmp_res = [{'filter': 'None', 'result': analyze_experiment(result)}]
-
-        for adfilter in filters:
-            result = run_experiment(df, LSTM2Layer(input_shape=(1, 4)), adfilter=deepcopy(adfilter), **kwargs)
+        try:
+            result = run_experiment(df, LSTM2Layer(input_shape=(1, 4)), **kwargs)
             if verbose:
                 print('experiment results: ', analyze_experiment(result))
-            tmp_res.append({'filter': str(adfilter), 'result': analyze_experiment(result)})
-        results.append(tmp_res)
+            tmp_res = [{'filter': 'None', 'result': analyze_experiment(result)}]
+
+            for adfilter in filters:
+                result = run_experiment(df, LSTM2Layer(input_shape=(1, 4)), adfilter=deepcopy(adfilter), **kwargs)
+                if verbose:
+                    print('experiment results: ', analyze_experiment(result))
+                tmp_res.append({'filter': str(adfilter), 'result': analyze_experiment(result)})
+            results.append(tmp_res)
+        except Exception as e:
+            print(e)
     return results
 
 
