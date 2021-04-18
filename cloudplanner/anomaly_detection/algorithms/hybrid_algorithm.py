@@ -11,8 +11,8 @@ class HybridAlgorithm(BaseAlgorithm):
 
         self._filters = filters
         self._min_confidence = min_confidence
-        self._recurrency_data = {'day_of_week': defaultdict(0),
-                                 'day_of_month': defaultdict(0)}
+        self._recurrency_data = {'day_of_week': defaultdict(lambda: 0),
+                                 'day_of_month': defaultdict(lambda: 0)}
 
     def get_confidence(self):
         pass
