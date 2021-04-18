@@ -4,9 +4,9 @@ from collections import defaultdict
 from cloudplanner.anomaly_detection.algorithms.base_algorithm import BaseAlgorithm
 
 
-class HybdridAlgorithm(BaseAlgorithm):
+class HybridAlgorithm(BaseAlgorithm):
 
-    def __init__(self, filters: [BaseAlgorithm], window_length=7, min_confidence=0.8):
+    def __init__(self, filters: [BaseAlgorithm], min_confidence=0.8):
         super().__init__()
 
         self._filters = filters

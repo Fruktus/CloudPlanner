@@ -3,9 +3,9 @@ from collections import defaultdict
 from cloudplanner.anomaly_detection.algorithms.base_algorithm import BaseAlgorithm
 
 
-class WeightedHybdridAlgorithm(BaseAlgorithm):
+class WeightedHybridAlgorithm(BaseAlgorithm):
 
-    def __init__(self, filters: [(BaseAlgorithm, float)], window_length=7, min_confidence=0.8):
+    def __init__(self, filters: [(BaseAlgorithm, float)], min_confidence=0.8):
         super().__init__()
 
         self._filters = filters
