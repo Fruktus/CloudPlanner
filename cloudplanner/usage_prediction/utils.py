@@ -3,10 +3,12 @@ from sys import maxsize
 from copy import deepcopy
 from collections import defaultdict
 from statistics import mean
+import traceback
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+from tqdm import tqdm
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import RobustScaler
 from cloudplanner.usage_prediction.networks.lstm_2layer import LSTM2Layer
@@ -130,8 +132,11 @@ def run_experiment(dataframe, network, adfilter=None, metric='cpu.usage.average'
             'prediction': y_pred, 'plot': fig}
 
 
-def run_batch_experiment(dataframes, filters, verbose=False, **kwargs):
+def run_batch_experiment(dataframes, filters, verbose=False, show_progress=True, **kwargs):
     results = []
+
+    dataframes = tqdm(dataframes) if show_progress else dataframes
+
     for df in dataframes:
         try:
             result = run_experiment(df, LSTM2Layer(input_shape=(1, 4)), **kwargs)
@@ -145,8 +150,8 @@ def run_batch_experiment(dataframes, filters, verbose=False, **kwargs):
                     print('experiment results: ', analyze_experiment(result))
                 tmp_res.append({'filter': str(adfilter), 'result': analyze_experiment(result)})
             results.append(tmp_res)
-        except Exception as e:
-            print(e)
+        except Exception:
+            print(traceback.format_exc())
     return results
 
 
