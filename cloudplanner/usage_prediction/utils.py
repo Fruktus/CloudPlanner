@@ -163,7 +163,7 @@ def analyze_batch_result(batch_result, full=False):
                 filter_results[filter_run['filter']][metric].append(filter_run['result'][metric])
     if not full:
         for adfilter in filter_results.keys():
-            for metric in filter_results[adfilter].keys():
+            for metric in filter_results[adfilter].copy():
                 filter_results[adfilter][metric + '_stdev'] = stdev(filter_results[adfilter][metric])
                 filter_results[adfilter][metric] = mean(filter_results[adfilter][metric])
     return filter_results
