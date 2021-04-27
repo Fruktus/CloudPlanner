@@ -2,7 +2,7 @@ from math import sqrt
 from sys import maxsize
 from copy import deepcopy
 from collections import defaultdict
-from statistics import mean
+from statistics import mean, stdev
 import traceback
 
 import numpy as np
@@ -164,6 +164,7 @@ def analyze_batch_result(batch_result, full=False):
     if not full:
         for adfilter in filter_results.keys():
             for metric in filter_results[adfilter].keys():
+                filter_results[adfilter][metric + '_stdev'] = stdev(filter_results[adfilter][metric])
                 filter_results[adfilter][metric] = mean(filter_results[adfilter][metric])
     return filter_results
 
