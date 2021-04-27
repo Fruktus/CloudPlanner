@@ -211,7 +211,9 @@ def analyze_experiment(ex_result: dict):
             'RMSE': sqrt(mean_squared_error(ex_result['true'], ex_result['prediction'].flatten()))}
 
 
-def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage.average', feedback_len=10):
+def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage.average', feedback_len=10,
+                            show_plot=True):
+
     filtered_df = filter_dataframe(dataframe, adfilter, metric) if adfilter else dataframe
 
     base_filtered_df = pd.DataFrame()
@@ -262,4 +264,6 @@ def run_prediction_feedback(dataframe, network, adfilter=None, metric='cpu.usage
         yaxis_range=[0, 100]
     )
 
-    fig.show()
+    if show_plot:
+        fig.show()
+    return fig
